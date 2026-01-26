@@ -1,0 +1,8 @@
+/* aurora background */
+body {
+    background:
+        radial-gradient(60% 80% at 10% 10%, rgba(56, 189, 248, 0.15), transparent),
+        radial-gradient(50% 70% at 90% 20%, rgba(99, 102, 241, 0.18), transparent),
+        radial-gradient(40% 60% at 50% 90%, rgba(168, 85, 247, 0.18), transparent),
+        #05070f;
+}
