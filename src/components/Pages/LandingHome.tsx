@@ -2,7 +2,7 @@ function LandingHome() {
     return (
         <div className="w-full w-full">
             <div className="w-full  w-full  p-10 ">
-                <div className="mt-24 text-center">
+                <div className="mt-10 text-center ">
                     <p className="text-blue-400 text-sm mb-4">
                         Talk Smarter, Connect Faster
                     </p>

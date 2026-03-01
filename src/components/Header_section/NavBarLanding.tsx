@@ -7,8 +7,10 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
 import Box from "@mui/material/Box";
-import logo from "../../assets/romanvi-removebg-preview.png";
+import logo from "../../assets/75f6e2ad-e01b-4b35-9b62-ad4b52465047.png";
+
 import { useScrollTrigger } from "@mui/material";
+import { Link } from "react-router-dom";
 
 function NavBarLanding() {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -32,7 +34,7 @@ function NavBarLanding() {
             sx={{
                 backgroundColor: trigger ? "#ffffff" : "transparent",
                 transition: "all 0.3s ease",
-                color: "#111827",
+                color: "#161515fc",
                 opacity
                     : trigger ? 1 : 1,
                 zIndex: (theme) => theme.zIndex.appBar + 1,
@@ -98,7 +100,8 @@ function NavBarLanding() {
 
                     <Button
                         variant="contained"
-
+                        component={Link}
+                        to="/login"
                         sx={{
                             textTransform: "none",
                             px: 3,
@@ -128,6 +131,8 @@ function NavBarLanding() {
                         <MenuItem onClick={handleMenuClose}>Contact</MenuItem>
                         <MenuItem onClick={handleMenuClose}>
                             <Button
+                                component={Link}
+                                to="/login"
                                 fullWidth
                                 variant="contained"
                                 className="!bg-indigo-600"

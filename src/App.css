@@ -6,3 +6,12 @@ body {
         radial-gradient(40% 60% at 50% 90%, rgba(168, 85, 247, 0.18), transparent),
         #05070f;
 }
+
+.css-8vs96d{
+    padding: 0;
+}
+/* html, body, #root {
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+} */
