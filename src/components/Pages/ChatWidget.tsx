@@ -12,6 +12,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import ChatIcon from "@mui/icons-material/Chat";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const ChatWidget = () => {
     const { widgetId } = useParams();
@@ -43,29 +45,37 @@ const ChatWidget = () => {
         setInput(e.target.value);
     }
 
-    const handleSend = () => {
+    const handleSend = async () => {
         try {
             if (!input.trim()) return;
+
             const newMessages = [...messages, { sender: "user", text: input }];
             setMessages(newMessages);
             setInput("");
             setLoader(true);
+
             const payload = {
                 question: input,
-
             };
-            const response = axios.post(`http://localhost:5000/api/faq/ask/${widgetId}`, payload)
-            console.log("Response from server:", response)
-            // if (response?.data && response?.data?.reply) {
+
+            const response = await axios.post(
+                `http://localhost:5000/api/faq/ask/${widgetId}`,
+                payload
+            );
+
+            console.log("Response from server:", response.data);
             setLoader(false);
-            setMessages([...newMessages, { sender: "bot", text: response.data?.reply.response }]);
-            // }
+            if (response?.data?.reply?.response) {
+                setMessages([
+                    ...newMessages,
+                    { sender: "bot", text: response.data.reply.response }
+                ]);
+            }
 
         } catch (error) {
             console.error("Error sending message:", error);
             setLoader(false);
         }
-
     };
 
 
@@ -125,6 +135,7 @@ const ChatWidget = () => {
                     </Box>
 
                     {/* Messages */}
+                    {/* Messages */}
                     <Box
                         sx={{
                             flex: 1,
@@ -135,45 +146,40 @@ const ChatWidget = () => {
                             gap: 1,
                         }}
                     >
-                        <Box
-                            sx={{
-                                flex: 1,
-                                p: 2,
-                                // overflowY: "auto",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 1,
-                            }}
-                        >
-                            {
-                                messages.map((msg, index) => (
+                        {/* Show only latest message (without map) */}
+                        {messages.length > 0 && (() => {
+                            const lastMessage = messages[messages.length - 1];
+                            return (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: lastMessage.sender === "user" ? "flex-end" : "flex-start",
+                                    }}
+                                >
                                     <Box
-                                        key={index}
                                         sx={{
-                                            display: "flex",
-                                            // overflow: "hidden",
-                                            justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
+                                            maxWidth: "70%",
+                                            p: 1.2,
+                                            borderRadius: 2,
+                                            fontSize: 13,
+                                            bgcolor: lastMessage.sender === "user" ? "#0f172a" : "#38bdf8",
+                                            color: lastMessage.sender === "user" ? "#e5e7eb" : "#020617",
+                                            wordBreak: "break-word",
+                                            "& ul": { paddingLeft: 2, margin: 0 },
+                                            "& p": { margin: "4px 0" },
                                         }}
                                     >
-                                        <Box
-                                            sx={{
-                                                maxWidth: "70%",
-                                                p: 1.2,
-                                                borderRadius: 2,
-                                                fontSize: 13,
-                                                bgcolor: msg.sender === "user" ? "#0f172a" : "#38bdf8",
-                                                color: msg.sender === "user" ? "#e5e7eb" : "#020617",
-                                                wordBreak: "break-word",
-                                            }}
-                                        >
-                                            {msg.text}
-                                        </Box>
-
+                                        {lastMessage.sender === "user" ? (
+                                            lastMessage.text
+                                        ) : (
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {lastMessage.text}
+                                            </ReactMarkdown>
+                                        )}
                                     </Box>
-                                ))}
-                        </Box>
-
-
+                                </Box>
+                            );
+                        })()}
                     </Box>
 
                     {
