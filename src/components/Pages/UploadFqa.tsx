@@ -74,12 +74,13 @@ export default function PdfFileSelector() {
 
     return (
         <ThemeProvider theme={darkTheme}>
-            <Box sx={{ height: "100vh", p: 10 }}>
+            <Box sx={{ height: "90vh", border:"2px solid #751818", display: "flex", justifyContent: "center",p: 10 }}>
                 <Paper
                     elevation={4}
                     sx={{
                         p: 4,
-                        width: 400,
+                        width: 600,
+                        height: 200,
                         backgroundColor: "#121212",
                         borderRadius: 3,
                     }}

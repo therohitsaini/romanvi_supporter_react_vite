@@ -1,43 +1,53 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Box,
     Paper,
     Typography,
     IconButton,
     TextField,
-    Fab
+    Fab,
+    CircularProgress
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import ChatIcon from "@mui/icons-material/Chat";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 const ChatWidget = () => {
-    const { widgetId } = useParams();
+    const { widgetId, userInfo } = useParams();
+    const messagesEndRef = useRef(null);
+    const [searchParams] = useSearchParams();
+    const userEmail = searchParams.get("user");
+    const domain = searchParams.get("domain");
     const [loader, setLoader] = useState(false);
     const [messages, setMessages] = useState([
         { sender: "bot", text: "Hi 👋 How can I help you today?" },
     ]);
-    console.log("messages", messages)
+    console.log("domain", domain);
     const [input, setInput] = useState("");
-
     const [settings, setSettings] = useState([]);
     const [open, setOpen] = useState(true);
-    console.log("Widget ID:", settings, widgetId);
+
     useEffect(() => {
         axios
-            .get(`http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}`)
+            .get(`http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+
+            })
             .then((res) => setSettings(res.data?.data))
             .catch((err) => console.log(err));
     }, [widgetId]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-            e.preventDefault(); // prevent form submit or new line
-            // handleSend();
+            e.preventDefault();
+            handleSend();
         }
     };
 
@@ -48,16 +58,14 @@ const ChatWidget = () => {
     const handleSend = async () => {
         try {
             if (!input.trim()) return;
-
             const newMessages = [...messages, { sender: "user", text: input }];
             setMessages(newMessages);
             setInput("");
             setLoader(true);
-
             const payload = {
                 question: input,
+                user: userEmail || userInfo || "Unknown User",
             };
-
             const response = await axios.post(
                 `http://localhost:5000/api/faq/ask/${widgetId}`,
                 payload
@@ -77,6 +85,12 @@ const ChatWidget = () => {
             setLoader(false);
         }
     };
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
 
     return (
@@ -106,7 +120,7 @@ const ChatWidget = () => {
                         bottom: 90,
                         right: 20,
                         width: 380,
-                        height: 420,
+                        height: 470,
                         bgcolor: "#020617",
                         color: "#e5e7eb",
                         borderRadius: 3,
@@ -147,13 +161,13 @@ const ChatWidget = () => {
                         }}
                     >
                         {/* Show only latest message (without map) */}
-                        {messages.length > 0 && (() => {
-                            const lastMessage = messages[messages.length - 1];
-                            return (
+                        {
+                            messages.map((msg, index) => (
                                 <Box
+                                    key={index}
                                     sx={{
                                         display: "flex",
-                                        justifyContent: lastMessage.sender === "user" ? "flex-end" : "flex-start",
+                                        justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
                                     }}
                                 >
                                     <Box
@@ -162,24 +176,24 @@ const ChatWidget = () => {
                                             p: 1.2,
                                             borderRadius: 2,
                                             fontSize: 13,
-                                            bgcolor: lastMessage.sender === "user" ? "#0f172a" : "#38bdf8",
-                                            color: lastMessage.sender === "user" ? "#e5e7eb" : "#020617",
+                                            bgcolor: msg.sender === "user" ? "#0f172a" : "#7f82899e",
+                                            color: msg.sender === "user" ? "#e5e7eb" : "#f6f3f3",
                                             wordBreak: "break-word",
                                             "& ul": { paddingLeft: 2, margin: 0 },
                                             "& p": { margin: "4px 0" },
                                         }}
                                     >
-                                        {lastMessage.sender === "user" ? (
-                                            lastMessage.text
+                                        {msg.sender === "user" ? (
+                                            msg.text
                                         ) : (
                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                {lastMessage.text}
+                                                {msg.text}
                                             </ReactMarkdown>
                                         )}
                                     </Box>
                                 </Box>
-                            );
-                        })()}
+                            ))}
+                        <div ref={messagesEndRef} />
                     </Box>
 
                     {
@@ -190,7 +204,7 @@ const ChatWidget = () => {
                             color: "#94a3b8",
                             p: 0.5,
                         }}>
-                            Typing......
+                            <CircularProgress size={10} />
                         </Box>
                     }
                     <Box
