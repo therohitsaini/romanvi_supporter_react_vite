@@ -30,19 +30,36 @@ const ChatWidget = () => {
     const [input, setInput] = useState("");
     const [settings, setSettings] = useState([]);
     const [open, setOpen] = useState(true);
+    const [isAllowed, setIsAllowed] = useState(false);
 
     useEffect(() => {
-        axios
-            .get(`http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                },
+        const fetchWidgetSettings = async () => {
+            try {
+                const res = await axios.get(
+                    `http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}/${domain}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
 
-            })
-            .then((res) => setSettings(res.data?.data))
-            .catch((err) => console.log(err));
-    }, [widgetId]);
+                setSettings(res.data?.data);
+                setIsAllowed(true);
+                console.log("widget settings", res.data?.data);
+            } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    setIsAllowed(false);
+                }
+                console.error("Error fetching widget settings:", error);
+            }
+        };
+
+        if (widgetId) {
+            fetchWidgetSettings();
+        }
+    }, [widgetId, domain]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -70,7 +87,6 @@ const ChatWidget = () => {
                 `http://localhost:5000/api/faq/ask/${widgetId}`,
                 payload
             );
-
             console.log("Response from server:", response.data);
             setLoader(false);
             if (response?.data?.reply?.response) {
@@ -92,6 +108,9 @@ const ChatWidget = () => {
         scrollToBottom();
     }, [messages]);
 
+    if (!isAllowed) {
+        return null; // or a message like "You are not allowed to view this widget."
+    }
 
     return (
         <>
