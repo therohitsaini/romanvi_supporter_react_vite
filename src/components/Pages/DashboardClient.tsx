@@ -47,7 +47,7 @@ export default function Dashboard() {
 
     const menuItems = [
         { text: "Overview", path: "/dashboard", icon: <DashboardIcon sx={{ fontSize: 16 }} />, label: "overview" },
-        { text: "Analytics", path: "/dashboard/analytics", icon: <BarChartIcon sx={{ fontSize: 16 }} /> },
+        { text: "Analytics", path: "/dashboard/chats", icon: <BarChartIcon sx={{ fontSize: 16 }} /> },
         { text: "Upload FQA", path: "/dashboard/upload-fqa", icon: <HelpOutlineIcon sx={{ fontSize: 16 }} /> },
         { text: "Widget Settings", path: "/dashboard/widget", icon: <ChatIcon sx={{ fontSize: 16 }} /> },
         { text: "Settings", path: "/dashboard/settings", icon: <SettingsIcon sx={{ fontSize: 16 }} /> },

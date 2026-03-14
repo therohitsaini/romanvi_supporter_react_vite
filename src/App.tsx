@@ -8,11 +8,12 @@ import Login from './components/Auth/Login'
 import RegisterationForm from './components/Auth/RegisterationForm'
 import Onboarding from './components/Pages/Onboarding'
 import Dashboard from './components/Pages/DashboardClient'
-import Anaylitics from './components/Pages/Anaylitics'
+import Anaylitics from './components/Pages/ChatDashboard'
 import ChatWidgetSetting from './components/Pages/WidgetSettings'
 import OverviewCards from './components/Pages/Overview'
 import ChatWidget from './components/Pages/ChatWidget'
 import UploadFqa from './components/Pages/UploadFqa'
+import ChatDashboard from './components/Pages/ChatDashboard'
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
           <Route path="widget/:widgetId" element={<ChatWidget />} />
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<OverviewCards />} />
-            <Route path="analytics" element={<Anaylitics />} />
+            <Route path="chats" element={<ChatDashboard />} />
             <Route path="widget" element={<ChatWidgetSetting />} />
             <Route path="upload-fqa" element={<UploadFqa />} /> 
           </Route>
