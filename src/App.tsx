@@ -1,42 +1,45 @@
-import { Fragment } from 'react'
-import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import NavBarLanding from './components/Header_section/NavBarLanding'
-import LandingHome from './components/Pages/LandingHome'
-import Home from './components/Home/Home'
-import Login from './components/Auth/Login'
-import RegisterationForm from './components/Auth/RegisterationForm'
-import Onboarding from './components/Pages/Onboarding'
-import Dashboard from './components/Pages/DashboardClient'
-import Anaylitics from './components/Pages/ChatDashboard'
-import ChatWidgetSetting from './components/Pages/WidgetSettings'
-import OverviewCards from './components/Pages/Overview'
-import ChatWidget from './components/Pages/ChatWidget'
-import UploadFqa from './components/Pages/UploadFqa'
-import ChatDashboard from './components/Pages/ChatDashboard'
+import { Fragment, lazy, Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import Loader from "./components/Helper/Loader";
+
+
+
+const Home = lazy(() => import("./components/Home/Home"));
+const Login = lazy(() => import("./components/Auth/Login"));
+const RegisterationForm = lazy(() => import("./components/Auth/RegisterationForm"));
+const Onboarding = lazy(() => import("./components/Pages/Onboarding"));
+const Dashboard = lazy(() => import("./components/Pages/DashboardClient"));
+const ChatWidgetSetting = lazy(() => import("./components/Pages/WidgetSettings"));
+const OverviewCards = lazy(() => import("./components/Pages/Overview"));
+const ChatWidget = lazy(() => import("./components/Pages/ChatWidget"));
+const UploadFqa = lazy(() => import("./components/Pages/UploadFqa"));
+const ChatDashboard = lazy(() => import("./components/Pages/ChatDashboard"));
 
 
 function App() {
-
   return (
     <Fragment>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register/n' element={<RegisterationForm />} />
-          <Route path='/onboarding' element={<Onboarding />} />
-          <Route path="widget/:widgetId" element={<ChatWidget />} />
-          <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<OverviewCards />} />
-            <Route path="chats" element={<ChatDashboard />} />
-            <Route path="widget" element={<ChatWidgetSetting />} />
-            <Route path="upload-fqa" element={<UploadFqa />} /> 
-          </Route>
-        </Routes>
+        <Suspense fallback={<Loader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register/n" element={<RegisterationForm />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="widget/:widgetId" element={<ChatWidget />} />
+            <Route path="/dashboard" element={<Dashboard />}>
+              <Route index element={<OverviewCards />} />
+              <Route path="chats" element={<ChatDashboard />} />
+              <Route path="widget" element={<ChatWidgetSetting />} />
+              <Route path="upload-fqa" element={<UploadFqa />} />
+            </Route>
+
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </Fragment>
-  )
+  );
 }
 
-export default App
+export default App;

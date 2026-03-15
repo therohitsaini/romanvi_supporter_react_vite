@@ -18,7 +18,7 @@ import remarkGfm from "remark-gfm";
 
 const ChatWidget = () => {
     const { widgetId, userInfo } = useParams();
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const [searchParams] = useSearchParams();
     const userEmail = searchParams.get("user");
     const domain = searchParams.get("domain");
@@ -26,9 +26,16 @@ const ChatWidget = () => {
     const [messages, setMessages] = useState([
         { sender: "bot", text: "Hi 👋 How can I help you today?" },
     ]);
-    console.log("domain", domain);
     const [input, setInput] = useState("");
-    const [settings, setSettings] = useState([]);
+    type WidgetSettings = {
+        primaryColor?: string;
+        botName?: string;
+        sendButtonColor?: string;
+        sendButtonTextColor?: string;
+        // Add other properties as needed
+    };
+
+    const [settings, setSettings] = useState<WidgetSettings>({});
     const [open, setOpen] = useState(true);
     const [isAllowed, setIsAllowed] = useState(false);
 
@@ -45,11 +52,17 @@ const ChatWidget = () => {
                     }
                 );
 
-                setSettings(res.data?.data);
+                setSettings(res.data?.data || {});
                 setIsAllowed(true);
                 console.log("widget settings", res.data?.data);
             } catch (error) {
-                if (error.response && error.response.status === 403) {
+                if (
+                    typeof error === "object" &&
+                    error !== null &&
+                    "response" in error &&
+                    typeof (error as any).response === "object" &&
+                    (error as any).response.status === 403
+                ) {
                     setIsAllowed(false);
                 }
                 console.error("Error fetching widget settings:", error);
@@ -61,14 +74,14 @@ const ChatWidget = () => {
         }
     }, [widgetId, domain]);
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             e.preventDefault();
             handleSend();
         }
     };
 
-    const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleOnchange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setInput(e.target.value);
     }
 
@@ -220,7 +233,7 @@ const ChatWidget = () => {
                             // border: "2px solid red",
                             fontStyle: "italic",
                             fontSize: 10,
-                            color: "#94a3b8",
+                            color: "#efeff0",
                             p: 0.5,
                         }}>
                             <CircularProgress size={10} />

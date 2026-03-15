@@ -31,7 +31,7 @@ const WidgetCustomizer = () => {
         botName: "AI Assistant"
     });
 
-    const handleChange = (field, value) => {
+    const handleChange = (field: keyof typeof settings, value: any) => {
         setSettings(prev => ({ ...prev, [field]: value }));
     };
     const handleSubmit = async () => {
@@ -58,7 +58,7 @@ const WidgetCustomizer = () => {
     }
 
     return (
-        <Grid sx={{ display: "flex", gap: 10, padding: 5 }} spacing={4}>
+        <Grid container sx={{ display: "flex", gap: 10, padding: 5 }} spacing={4}>
 
             {/* LEFT SIDE SETTINGS */}
             <Grid item xs={12} md={6}>
@@ -157,7 +157,7 @@ const WidgetCustomizer = () => {
                 </Button>
             </Grid>
 
-            <Grid xs={12} md={6}>
+            <Grid item xs={12} md={6}>
                 <Typography variant="h5" gutterBottom>
                     Live Preview
                 </Typography>
@@ -207,7 +207,8 @@ const WidgetCustomizer = () => {
                             <Typography fontWeight={600}>
                                 {settings.botName}
                             </Typography>
-                            <IconButton onClick={() => setOpen(false)}>
+                            {/* Remove setOpen since open state is not defined */}
+                            <IconButton>
                                 <CloseIcon sx={{ color: "#94a3b8" }} />
                             </IconButton>
                         </Box>

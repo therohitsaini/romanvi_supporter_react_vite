@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import {
     Box,
     List,
@@ -15,18 +15,11 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
+import type { ChatListItem } from "../Helper/TsInterfce";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-const conversations = [
-    { id: 1, name: "John Doe", message: "Pricing inquiry", time: "2 min ago" },
-    { id: 2, name: "support@client.com", message: "Refund policy?", time: "10 min ago" },
-    { id: 3, name: "Anonymous Visitor", message: "Hello there!", time: "1 hour ago" },
-    { id: 1, name: "John Doe", message: "Pricing inquiry", time: "2 min ago" },
-    { id: 2, name: "support@client.com", message: "Refund policy?", time: "10 min ago" },
-    { id: 3, name: "Anonymous Visitor", message: "Hello there!", time: "1 hour ago" },
-    { id: 1, name: "John Doe", message: "Pricing inquiry", time: "2 min ago" },
-    { id: 2, name: "support@client.com", message: "Refund policy?", time: "10 min ago" },
-    { id: 3, name: "Anonymous Visitor", message: "Hello there!", time: "1 hour ago" }
-];
+
 
 const defaultMessages = [
     { sender: "user", text: "Hello!", time: "2:45 PM" },
@@ -34,15 +27,7 @@ const defaultMessages = [
     { sender: "user", text: "What’s your refund policy?", time: "2:47 PM" },
     { sender: "bot", text: "You can request a refund within 7 days.", time: "2:48 PM" }
 ];
-interface ChatListItem {
-    _id: string
-    email: string
-    lastMessage: string
-    partnerId: string
-    createdAt: string
-    updatedAt: string
-    __v: number
-}
+
 export const convertUTCtoIST = (utcTime: string) => {
     const date = new Date(utcTime)
 
@@ -50,16 +35,20 @@ export const convertUTCtoIST = (utcTime: string) => {
         timeZone: "Asia/Kolkata",
         hour: "2-digit",
         minute: "2-digit",
-      
+
     })
 }
 
 
 export default function ChatDashboard() {
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [conversations, setConversations] = useState<ChatListItem[]>([]);
     const [messages, setMessages] = useState(defaultMessages);
     const [input, setInput] = useState("");
+    const [selectedChat, setSelectedChat] = useState<ChatListItem | null>(null);
+    const [chatHistory, setChatHistory] = useState<any[]>([]);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+
 
     useEffect(() => {
         const id = localStorage.getItem("_user_Identy_v3")
@@ -85,7 +74,7 @@ export default function ChatDashboard() {
             }
 
         } catch (error) {
-            console.error("Error fetching chat history:", error.response?.data || error.message);
+            console.error("Error fetching chat history:");
         }
     };
 
@@ -95,19 +84,53 @@ export default function ChatDashboard() {
         }
     }, [userId]);
 
+    const getMessagesForChat = async (partnerId: string) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:5000/api/patner/admin/chat/messages/dashboard/${partnerId}`
+            );
+            if (response.status === 200) {
+                setChatHistory(response.data.data);
+            } else {
+                console.warn("API returned success false:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching chat history:", error);
+        }
+    }
+
+
+    const handleChatItemClick = (chat: ChatListItem) => {
+        console.log("Chat item clicked:", chat);
+        setSelectedChat(chat);
+    }
+    useEffect(() => {
+        if (selectedChat?._id) {
+            getMessagesForChat(selectedChat._id);
+        }
+    }, [selectedChat]);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [chatHistory]);
+    console.log("Chat History:", chatHistory);
+
 
     return (
         <Box sx={{ height: "90vh", display: "flex", background: "#f2f3f6", gap: 2, p: 2 }}>
-
-            {/* LEFT PANEL */}
             <Paper sx={{ width: 290, bgcolor: "#1e293b", color: "#fff", p: 2 }}>
                 <Typography variant="h6" mb={2}>Conversations</Typography>
-
+                {conversations.length === 0 ? (
+                    <Typography variant="body2" color="gray">
+                        No conversations available.
+                    </Typography>
+                ) : null}
                 <List sx={{ maxHeight: "70vh", overflowY: "auto" }}>
                     {conversations.map((chat) => {
-                        console.log("Rendering chat item:", chat);
                         return (
+
                             <ListItem
+                                onClick={() => handleChatItemClick(chat)}
                                 key={chat._id}
                                 sx={{
                                     mb: 1,
@@ -116,15 +139,36 @@ export default function ChatDashboard() {
                                     "&:hover": { bgcolor: "#536988" }
                                 }}
                             >
-                                <ListItemAvatar>
+                                <ListItemAvatar sx={{ color: "#94bafb" }}>
                                     <Avatar>{chat.email[0]}</Avatar>
                                 </ListItemAvatar>
-
                                 <ListItemText
                                     primary={chat.email}
                                     secondary={
-                                        <Typography variant="caption" color="gray">
-                                            {chat.lastMessage} • {convertUTCtoIST(chat.updatedAt)}
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "gray",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "6px"
+                                            }}
+                                        >
+                                            <span
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: 0,
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis"
+                                                }}
+                                            >
+                                                {chat.lastMessage}
+                                            </span>
+
+                                            <span style={{ whiteSpace: "nowrap" }}>
+                                                {convertUTCtoIST(chat.updatedAt)}
+                                            </span>
                                         </Typography>
                                     }
                                 />
@@ -137,21 +181,38 @@ export default function ChatDashboard() {
             {/* CENTER CHAT WINDOW */}
             <Paper
                 sx={{
-                    flex: 1,   // 🔥 THIS MAKES CENTER FULL WIDTH
+                    flex: 1,
                     bgcolor: "#1e293b",
                     color: "#fff",
                     display: "flex",
                     flexDirection: "column"
                 }}
             >
-                <Box sx={{ p: 2, borderBottom: "1px solid #334155" }}>
-                    <Typography variant="h6">Chat Window</Typography>
-                    <Chip label="Open" color="success" size="small" />
+                <Box sx={{ p: 2, borderBottom: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <ListItemAvatar sx={{ color: "#94bafb" }}>
+                            <Avatar>{selectedChat ? selectedChat.email[0] : ""}</Avatar>
+                        </ListItemAvatar>
+                        <Typography variant="subtitle1">
+                            {selectedChat ? selectedChat.email : "Select a chat"}
+                            {selectedChat && (
+                                <Typography variant="caption" color="gray" ml={1}>
+                                    {convertUTCtoIST(selectedChat.updatedAt)}
+                                </Typography>
+                            )}
+                        </Typography>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Typography sx={{ fontSize: "16px" }}>Chat Window</Typography>
+                        {selectedChat && <Chip label="Open" color="success" size="small" />}
+                    </div>
+
+                    {/* <Chip label="Open" color="success" size="small" /> */}
                 </Box>
 
                 {/* Messages */}
                 <Box sx={{ flex: 1, p: 2, overflowY: "auto" }}>
-                    {messages.map((msg, i) => (
+                    {chatHistory.map((msg, i) => (
                         <Box
                             key={i}
                             sx={{
@@ -170,13 +231,20 @@ export default function ChatDashboard() {
                                     maxWidth: "60%"
                                 }}
                             >
-                                <Typography variant="body2">{msg.text}</Typography>
+                                <Typography variant="body2">  {msg.sender === "user" ? (
+                                    msg.message
+                                ) : (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {msg.message}
+                                    </ReactMarkdown>
+                                )}</Typography>
                                 <Typography variant="caption" color="gray">
-                                    {msg.time}
+                                    {msg.sender === "user" ? "Visitor" : "bot"} • {convertUTCtoIST(msg.createdAt)}
                                 </Typography>
                             </Box>
                         </Box>
                     ))}
+                    <div ref={bottomRef}></div>
                 </Box>
 
                 <Divider />
@@ -202,8 +270,7 @@ export default function ChatDashboard() {
             <Paper sx={{ width: 290, bgcolor: "#1e293b", color: "#fff", p: 2 }}>
                 <Typography variant="h6" mb={2}>Visitor Info</Typography>
 
-                <Typography>Email: user@email.com</Typography>
-                <Typography mt={1}>Location: India</Typography>
+                <Typography>Email: {selectedChat ? selectedChat.email : "N/A"}</Typography>
                 <Typography mt={1}>Device: Chrome (Windows)</Typography>
 
                 <Divider sx={{ my: 2 }} />
