@@ -1,7 +1,11 @@
-import { Fragment, lazy, Suspense } from "react";
+import { Fragment, lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Loader from "./components/Helper/Loader";
+import { socket } from "./components/Socket/socket";
+import { useDispatch } from "react-redux";
+import { useSocket } from "./components/Socket/useSocket";
+import { connectSocket } from "./reduxToolKit/slice/socketSlice";
 
 
 
@@ -18,6 +22,26 @@ const ChatDashboard = lazy(() => import("./components/Pages/ChatDashboard"));
 
 
 function App() {
+
+  const dispatch = useDispatch();
+  useSocket();
+  useEffect(() => {
+
+    dispatch(connectSocket());
+
+    socket.on("connect", () => {
+
+      console.log("Socket connected:", socket.id);
+
+      socket.emit("register_user", {
+        userId: localStorage.getItem("_user_Identy_v3"),
+      });
+
+    });
+
+  }, [dispatch,]);
+
+
   return (
     <Fragment>
       <BrowserRouter>

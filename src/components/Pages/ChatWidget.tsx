@@ -15,6 +15,10 @@ import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useDispatch } from "react-redux";
+import { useSocket } from "../Socket/useSocket";
+import { connectSocket } from "../../reduxToolKit/slice/socketSlice";
+import { socket } from "../Socket/socket";
 
 const ChatWidget = () => {
     const { widgetId, userInfo } = useParams();
@@ -23,6 +27,7 @@ const ChatWidget = () => {
     const userEmail = searchParams.get("user");
     const domain = searchParams.get("domain");
     const [loader, setLoader] = useState(false);
+    const dispatch = useDispatch();
     const [messages, setMessages] = useState([
         { sender: "bot", text: "Hi 👋 How can I help you today?" },
     ]);
@@ -38,13 +43,34 @@ const ChatWidget = () => {
     const [settings, setSettings] = useState<WidgetSettings>({});
     const [open, setOpen] = useState(true);
     const [isAllowed, setIsAllowed] = useState(false);
+    useEffect(() => {
+
+        dispatch(connectSocket());
+
+        const handleConnect = () => {
+
+            console.log("Socket connected:", socket.id);
+
+            socket.emit("register_user", {
+                userId: 123455555,
+            });
+
+        };
+
+        socket.on("connect", handleConnect);
+
+        return () => {
+            socket.off("connect", handleConnect);
+        };
+
+    }, [dispatch]);
 
     useEffect(() => {
         const fetchWidgetSettings = async () => {
             try {
                 const res = await axios.get(
                     `http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}/${domain}`,
-                     {
+                    {
                         headers: {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${localStorage.getItem("token")}`,

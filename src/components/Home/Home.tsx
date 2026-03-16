@@ -9,7 +9,7 @@ import Footer from '../Pages/Footer'
 function Home() {
     return (
         <Fragment>
-            <Box className="aurora-bg">
+            <Box className="aurora-bg" sx={{background:"black"}}>
                 <NavBarLanding />
 
                 {/* OFFSET FOR STICKY NAVBAR */}

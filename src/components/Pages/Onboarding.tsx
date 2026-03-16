@@ -80,6 +80,7 @@ const Onboarding = () => {
                 backgroundPosition: "center",
                 backgroundSize: "cover",
                 py: 8,
+                
             }}
         >
             <Container maxWidth="sm">
