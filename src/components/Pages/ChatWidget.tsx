@@ -16,9 +16,8 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useDispatch } from "react-redux";
-import { useSocket } from "../Socket/useSocket";
-import { connectSocket } from "../../reduxToolKit/slice/socketSlice";
 import { socket } from "../Socket/socket";
+import api from "../../config/api";
 
 const ChatWidget = () => {
     const { widgetId, userInfo } = useParams();
@@ -37,39 +36,19 @@ const ChatWidget = () => {
         botName?: string;
         sendButtonColor?: string;
         sendButtonTextColor?: string;
-        // Add other properties as needed
     };
 
     const [settings, setSettings] = useState<WidgetSettings>({});
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
-    useEffect(() => {
+  
 
-        dispatch(connectSocket());
-
-        const handleConnect = () => {
-
-            console.log("Socket connected:", socket.id);
-
-            socket.emit("register_user", {
-                userId: 123455555,
-            });
-
-        };
-
-        socket.on("connect", handleConnect);
-
-        return () => {
-            socket.off("connect", handleConnect);
-        };
-
-    }, [dispatch]);
 
     useEffect(() => {
         const fetchWidgetSettings = async () => {
             try {
-                const res = await axios.get(
-                    `http://localhost:5000/api/widget/fetch/widget-settings/${widgetId}/${domain}`,
+                const res = await api.get(
+                    `${import.meta.env.VITE_API_BASE_URL}/api/widget/fetch/widget-settings/${widgetId}/${domain}`,
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -123,10 +102,9 @@ const ChatWidget = () => {
                 user: userEmail || userInfo || "Unknown User",
             };
             const response = await axios.post(
-                `http://localhost:5000/api/faq/ask/${widgetId}`,
+                `${import.meta.env.VITE_API_BASE_URL}/api/faq/ask/${widgetId}`,
                 payload
             );
-            console.log("Response from server:", response.data);
             setLoader(false);
             if (response?.data?.reply?.response) {
                 setMessages([
@@ -153,7 +131,6 @@ const ChatWidget = () => {
 
     return (
         <>
-            {/* Floating Button */}
             <Fab
                 onClick={() => setOpen(true)}
                 sx={{

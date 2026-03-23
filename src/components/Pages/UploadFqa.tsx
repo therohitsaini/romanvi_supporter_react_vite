@@ -17,13 +17,13 @@ const darkTheme = createTheme({
 });
 
 export default function PdfFileSelector() {
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const userId = localStorage.getItem("_user_Identy_v3");
 
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target.files?.[0];
         if (!selectedFile) return;
 
         if (!selectedFile.name.toLowerCase().endsWith(".pdf")) {
@@ -53,7 +53,7 @@ export default function PdfFileSelector() {
             formData.append("pdf", file);
 
             const response = await axios.post(
-               `http://localhost:5000/api/faq/upload/${userId}`,
+               `${import.meta.env.VITE_API_BASE_URL}/api/faq/upload/${userId}`,
                 formData,
                 {
                     headers: {
@@ -66,7 +66,7 @@ export default function PdfFileSelector() {
             setError("");
             setFile(null);
 
-        } catch (err) {
+        } catch (err: any) {
             setError(err.response?.data?.message || "Upload failed");
             setSuccess("");
         }
@@ -102,7 +102,7 @@ export default function PdfFileSelector() {
                             hidden
                             accept="application/pdf"
                             onChange={handleFileChange}
-                            onClick={(e) => (e.target.value = null)}
+                            onClick={(e) => ((e.target as HTMLInputElement).value = "")}
                         />
                     </Button>
 

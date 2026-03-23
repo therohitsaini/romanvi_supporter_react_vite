@@ -87,12 +87,4 @@ function LandingHome() {
 }
 
 export default LandingHome;
-/* Feature Card Component */
-function FeatureCard({ title, text }) {
-    return (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
-            <h3 className="text-white font-medium">{title}</h3>
-            <p className="mt-3 text-sm text-gray-400">{text}</p>
-        </div>
-    );
-}
+

@@ -25,7 +25,7 @@ const LadnigChatWidget = () => {
         setMessages([...messages, { sender: "user", text: input }]);
         setLoader(true);
         setInput("");
-        const response = await fetch('http://localhost:5000/api/freellm', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/freellm`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -46,12 +46,12 @@ const LadnigChatWidget = () => {
 
     };
 
-    const handleOnchange = (e) => {
+    const handleOnchange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
         setInput(e.target.value);
         // setInput("");
     }
-    const handleKeyDown = (e) => {
+    const handleKeyDown =(e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             e.preventDefault(); // prevent form submit or new line
             handleSend();

@@ -1,41 +1,84 @@
-import React from "react";
 import {
     Box,
     Card,
     CardContent,
     Typography,
     Chip,
-    Button,
 } from "@mui/material";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import InsightsIcon from "@mui/icons-material/Insights";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useAppDispatch } from "../hook/hook";
+import { fetchAdminUsers, fetchAllUserConversions } from "../../reduxToolKit/slice/adminSlice";
+import LineChartOur from "../charts/LineChartOur";
+import api from "../../config/api";
 
-const stats = [
-    {
-        title: "Users",
-        value: "14k",
-        change: "+25%",
-        positive: true,
-        subtitle: "Last 30 days",
-    },
-    {
-        title: "Conversions",
-        value: "325",
-        change: "-25%",
-        positive: false,
-        subtitle: "Last 30 days",
-    },
-    {
-        title: "Event count",
-        value: "200k",
-        change: "+5%",
-        positive: true,
-        subtitle: "Last 30 days",
-    },
-];
+
 
 export default function OverviewCards() {
+    const dispatch = useAppDispatch();
+    const [userId, setUserId] = useState<string | null>(null);
+    const users = useSelector((state) => state?.admin?.user);
+    const conversions = useSelector((state) => state?.admin?.conversions);
+    const [analytics, setAnalytics] = useState<any>(null);
+
+    useEffect(() => {
+        const storedUserId = localStorage.getItem("_user_Identy_v3");
+        if (storedUserId) {
+            setUserId(storedUserId);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (userId) {
+            dispatch(fetchAdminUsers(userId));
+            dispatch(fetchAllUserConversions(userId));
+        }
+    }, [userId, dispatch]);
+
+    const fetchAnalytics = async () => {
+        try {
+            const response = await api.get(`/api/patner/admin/partner/analytics/dashboard/${userId}`);
+            console.log("Analytics data:", response.data.analytics);
+            if (response.status === 200) {
+                setAnalytics(response.data);
+                console.log("Analytics state updated:", response.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching analytics:", error);
+        }
+    }
+    useEffect(() => {
+        if (userId) {
+            fetchAnalytics();
+        }
+    }, [userId, dispatch]);
+
+
+    const stats = [
+        {
+            title: "Users",
+            value: users.data?.length ? users.data.length.toString() : "0",
+            change: "+25%",
+            positive: true,
+            subtitle: "Last 30 days",
+        },
+        {
+            title: "Conversions",
+            value: conversions.totalChats ? conversions.totalChats.toString() : "0",
+            change: "-25%",
+            positive: false,
+            subtitle: "Last 30 days",
+        },
+        {
+            title: "Event count",
+            value: "200",
+            change: "+5%",
+            positive: true,
+            subtitle: "Last 30 days",
+        },
+    ];
+
     return (
         <Box sx={{ p: 4, bgcolor: "#090909", minHeight: "100vh" }}>
             <Typography variant="h5" sx={{ color: "#fff", mb: 3 }}>
@@ -49,12 +92,11 @@ export default function OverviewCards() {
                     gap: 3,
                 }}
             >
-                {/* Stats Cards */}
                 {stats.map((item, index) => (
                     <Card
                         key={index}
                         sx={{
-                            bgcolor: "#101011",
+                            bgcolor: " rgba(20, 23, 26, 0.6)",
                             color: "#fff",
                             borderRadius: 3,
                             border: "1px solid rgba(255,255,255,0.08)",
@@ -79,7 +121,7 @@ export default function OverviewCards() {
                                     mt: 1,
                                 }}
                             >
-                                <Typography variant="h4">{item.value}</Typography>
+                                <Typography variant="h4">{item.value + "K"}</Typography>
 
                                 <Chip
                                     label={item.change}
@@ -132,7 +174,7 @@ export default function OverviewCards() {
                     <CardContent>
                         <InsightsIcon sx={{ fontSize: 32, mb: 2, opacity: 0.8 }} />
 
-                        <Typography  gutterBottom>
+                        <Typography gutterBottom>
                             Explore your data
                         </Typography>
 
@@ -143,23 +185,13 @@ export default function OverviewCards() {
                             Uncover performance and visitor insights with our data wizardry.
                         </Typography>
 
-                        {/* <Button
-                            variant="contained"
-                            sx={{
-                                bgcolor: "#fff",
-                                color: "#000",
-                                textTransform: "none",
-                                fontWeight: 600,
-                                "&:hover": {
-                                    bgcolor: "#e5e7eb",
-                                },
-                            }}
-                        >
-                            Get insights
-                        </Button> */}
+
                     </CardContent>
                 </Card>
             </Box>
+            <div className="mt-6">
+                <LineChartOur analytics={analytics} />
+            </div>
         </Box>
     );
 }

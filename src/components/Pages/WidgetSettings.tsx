@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Box,
-    Grid,
     TextField,
     Typography,
     MenuItem,
@@ -11,8 +10,14 @@ import {
     InputLabel,
     Select,
     Slider,
-    IconButton
+    IconButton,
+
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
+interface Message {
+    sender: "user" | "bot";
+    text: string;
+}
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
@@ -31,6 +36,13 @@ const WidgetCustomizer = () => {
         botName: "AI Assistant"
     });
 
+    const [messages, setMessages] = useState<Message[]>();
+    useEffect(() => {
+        setMessages([
+            { sender: "bot", text: "Hi! How can I help you?" }
+        ])
+    }, [])
+
     const handleChange = (field: keyof typeof settings, value: any) => {
         setSettings(prev => ({ ...prev, [field]: value }));
     };
@@ -39,7 +51,7 @@ const WidgetCustomizer = () => {
         try {
             const token = "your_auth_token_here";
             const response = await axios.post(
-                `http://localhost:5000/api/widget/widget-settings/${clientId}`,
+                `${import.meta.env.VITE_API_BASE_URL}/api/widget/widget-settings/${clientId}`,
                 settings,
                 {
                     headers: {
@@ -61,7 +73,7 @@ const WidgetCustomizer = () => {
         <Grid container sx={{ display: "flex", gap: 10, padding: 5 }} spacing={4}>
 
             {/* LEFT SIDE SETTINGS */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h5" gutterBottom >
                     Widget Settings
                 </Typography>
@@ -89,7 +101,7 @@ const WidgetCustomizer = () => {
                     value={settings.primaryColor}
                     onChange={(e) => handleChange("primaryColor", e.target.value)}
                 />
-                
+
                 <TextField
                     size="small"
                     label="Text Area background color"
@@ -99,7 +111,7 @@ const WidgetCustomizer = () => {
                     value={settings.textAreaBgColor}
                     onChange={(e) => handleChange("textAreaBgColor", e.target.value)}
                 />
-                
+
                 <TextField
                     size="small"
                     label="Send Button Color"
@@ -131,7 +143,7 @@ const WidgetCustomizer = () => {
                     value={settings.borderRadius}
                     min={0}
                     max={30}
-                    onChange={(e, val) => handleChange("borderRadius", val)}
+                    onChange={(val) => handleChange("borderRadius", val)}
                 />
 
                 <FormControl fullWidth margin="normal">
@@ -157,7 +169,7 @@ const WidgetCustomizer = () => {
                 </Button>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h5" gutterBottom>
                     Live Preview
                 </Typography>
@@ -235,7 +247,7 @@ const WidgetCustomizer = () => {
                                 }}
                             >
                                 {
-                                    [].map((msg, index) => (
+                                    messages?.map((msg, index) => (
                                         <Box
                                             key={index}
                                             sx={{

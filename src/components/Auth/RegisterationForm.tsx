@@ -9,8 +9,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 function RegisterationForm() {
 
     const email = useRef<HTMLInputElement>(null);
+    const name = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
-    const userName = useRef<HTMLInputElement>(null);
     const [loader, setLoader] = useState<boolean>(false);
 
     const signup = async (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -18,12 +18,13 @@ function RegisterationForm() {
         try {
             setLoader(true);
             const userInfo = {
-              
+
+                name: name.current?.value,
                 email: email.current?.value,
                 password: password.current?.value
             }
             console.log("User info to be sent:", userInfo);
-            const url = `http://localhost:5000/api/user/register-info`
+            const url = `${import.meta.env.VITE_API_BASE_URL}/api/user/register-info`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -68,7 +69,14 @@ function RegisterationForm() {
                     <h1 className="text-3xl font-bold  ">Sign <span className="text-purple-600">up</span> </h1>
                     <p> Welcome back! Please enter your details.</p>
                     <form className="mt-10 flex flex-col gap-4">
-
+                        <TextField
+                            label="Name"
+                            variant="outlined"
+                            className="w-full"
+                            size="small"
+                            inputRef={name}
+                        >
+                        </TextField>
                         <TextField
                             label="Email"
                             variant="outlined"

@@ -2,7 +2,9 @@ import { Suspense, useEffect, useState } from "react";
 import {
     AppBar,
     Avatar,
+    Badge,
     Box,
+    CircularProgress,
     CssBaseline,
     Divider,
     Drawer,
@@ -29,35 +31,29 @@ import {
     ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { fetchAdminData } from "../../reduxToolKit/slice/adminSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { Outlet, NavLink } from "react-router-dom";
+import { fetchAdminData, fetchAdminUsers } from "../../reduxToolKit/slice/adminSlice";
+import { useSelector } from "react-redux";
 import Loader from "../Helper/Loader";
-
+import { useAppDispatch } from "../hook/hook";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import ProfileMenu from "../Helper/Profile";
 const drawerWidth = 240;
 const collapsedWidth = 80;
 
 export default function Dashboard() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const location = useLocation();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [userId, setUserId] = useState(null);
-    const dispatch = useDispatch();
-    const { admin } = useSelector((state) => state.admin);
-    console.log(admin, "admin data in dashboard");
+    const [userId, setUserId] = useState<(null) | string>(null);
+    const dispatch = useAppDispatch();
+    const adminData = useSelector((state) => state.admin.admin);
     useEffect(() => {        // Close the mobile drawer when navigating to a new route
         const id = localStorage.getItem("_user_Identy_v3")
-        setUserId(id);
+        setUserId(String(id));
     }, []);
 
-    const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    console.log(adminData, "Admin data in Dashboard");
 
     const currentDrawerWidth = isCollapsed
         ? collapsedWidth
@@ -78,8 +74,10 @@ export default function Dashboard() {
         { text: "Conversations", path: "/dashboard/chats", icon: <BarChartIcon sx={{ fontSize: 16 }} /> },
         { text: "Upload FQA", path: "/dashboard/upload-fqa", icon: <HelpOutlineIcon sx={{ fontSize: 16 }} /> },
         { text: "Widget Settings", path: "/dashboard/widget", icon: <ChatIcon sx={{ fontSize: 16 }} /> },
-        { text: "Settings", path: "/dashboard/settings", icon: <SettingsIcon sx={{ fontSize: 16 }} /> },
+        { text: "Install Widget", path: "/dashboard/install-widget", icon: <SettingsIcon sx={{ fontSize: 16 }} /> },
     ];
+
+
 
 
 
@@ -114,25 +112,19 @@ export default function Dashboard() {
                         </Typography>
                     </Box>
 
-                    {/* RIGHT SIDE PROFILE */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
 
-                        <IconButton onClick={handleProfileClick}>
-                            <Avatar
-                                sx={{ width: 32, height: 32 }}
-                                src="https://i.pravatar.cc/150"
-                            />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <IconButton>
+                            <Badge
+                                badgeContent={100}
+                                color="error"
+                                max={99}
+                            >
+                                <NotificationsIcon sx={{ color: "#fff" }} />
+                            </Badge>
                         </IconButton>
-                        <Divider  />
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleClose}>Settings</MenuItem>
-                            <MenuItem onClick={handleClose}>Logout</MenuItem>
-                        </Menu>
+                        {/* profile menu  */}
+                        <ProfileMenu adminData={adminData} />
                     </Box>
 
                 </Toolbar>
@@ -190,9 +182,7 @@ export default function Dashboard() {
                         <List sx={{ px: 1 }}>
                             {
                                 menuItems.map((item) => {
-                                    const isActive =
-                                        location.pathname === item.path ||
-                                        location.pathname.startsWith(item.path + "/");
+
 
                                     return (
                                         <ListItem key={item.text} disablePadding>
@@ -205,10 +195,7 @@ export default function Dashboard() {
                                                     component={NavLink}
                                                     to={item.path}
                                                     end={item.path === "/dashboard"}
-                                                    style={({ isActive }) => ({
-                                                        backgroundColor: isActive ? " rgb(185 192 192 / 31%)" : "transparent",
-                                                        borderRadius: "8px",
-                                                    })}
+
                                                     sx={{
                                                         justifyContent: isCollapsed ? "center" : "flex-start",
                                                         px: 2,
@@ -295,9 +282,7 @@ export default function Dashboard() {
                         <List sx={{ px: 1 }}>
                             {
                                 menuItems.map((item) => {
-                                    const isActive =
-                                        location.pathname === item.path ||
-                                        location.pathname.startsWith(item.path + "/");
+
 
                                     return (
                                         <ListItem key={item.text} disablePadding>
@@ -310,10 +295,7 @@ export default function Dashboard() {
                                                     component={NavLink}
                                                     to={item.path}
                                                     end={item.path === "/dashboard"}
-                                                    style={({ isActive }) => ({
-                                                        backgroundColor: isActive ? " rgb(185 192 192 / 31%)" : "transparent",
-                                                        borderRadius: "8px",
-                                                    })}
+
                                                     sx={{
                                                         justifyContent: isCollapsed ? "center" : "flex-start",
                                                         px: 2,
@@ -360,15 +342,17 @@ export default function Dashboard() {
                     p: 3,
                     width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
                     backgroundColor: "#f8fafc",
-                    minHeight: "100vh",
+                    minHeight: "100%",
                     transition: "all 0.3s ease",
                     padding: 0
                 }}
             >
                 <Toolbar />
-                <Suspense fallback={<Loader />}>
-                    <Outlet />
-                </Suspense>
+                
+                    <Suspense fallback={<CircularProgress enableTrackSlot size="3rem" />}>
+                        <Outlet />
+                    </Suspense>
+              
             </Box>
         </Box>
     );

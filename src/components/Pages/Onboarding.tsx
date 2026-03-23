@@ -25,7 +25,7 @@ const Onboarding = () => {
         businessType: "",
     });
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
@@ -36,7 +36,7 @@ const Onboarding = () => {
         if (activeStep === steps.length - 1) {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch("http://localhost:5000/api/onbording/onbording-data",
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/onbording/onbording-data`,
                     {
                         method: "POST",
                         headers: {

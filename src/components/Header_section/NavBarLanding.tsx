@@ -13,9 +13,9 @@ import { useScrollTrigger } from "@mui/material";
 import { Link } from "react-router-dom";
 
 function NavBarLanding() {
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-    const handleMenuOpen = (event) => {
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
@@ -26,6 +26,8 @@ function NavBarLanding() {
         disableHysteresis: true,
         threshold: 10, // kitna scroll pe color aaye
     })
+
+   
 
     return (
         <AppBar

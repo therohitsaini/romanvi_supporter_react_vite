@@ -1,6 +1,7 @@
-import { Box, Button, Checkbox, CircularProgress, Divider, TextField } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Box, Button, Checkbox, CircularProgress, Divider, IconButton, InputAdornment, TextField } from "@mui/material";
 import { useRef, useState } from "react";
-import { data, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 // import { auth } from "../../../FirebaseConfig";
 // import { getIdToken, signInWithEmailAndPassword } from "firebase/auth";
@@ -10,6 +11,11 @@ function Login() {
     const email = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+      const [showPassword, setShowPassword] = useState(false);
+
+  const handleToggle = () => {
+    setShowPassword((prev) => !prev);
+  };
 
     const loginHandler = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         e?.preventDefault();
@@ -20,13 +26,9 @@ function Login() {
                 email: email.current?.value,
                 password: password.current?.value
             }
-            // 👇 Firebase login
-            // await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-
-            // const user = auth.currentUser;
-            // if (user) {
+            console.log("User info to be sent:", import.meta.env.VITE_API_BASE_URL);
             try {
-                const url = `http://localhost:5000/api/user/login-info`
+                const url = `${"http://localhost:5000"}/api/user/login-info`
                 const response = await fetch(url, {
                     method: "POST",
                     headers: {
@@ -37,7 +39,6 @@ function Login() {
                 const data = await response.json();
                 console.log("Response from server:", data);
                 if (response.ok) {
-                    console.log("Response from server:", data);
                     localStorage.setItem("__Access_Token_v2", data.token);
                     localStorage.setItem("_user_Identy_v3", data.data._id);
                     toast.success(data.message || "Login successful!");
@@ -105,8 +106,17 @@ function Login() {
                             variant="outlined"
                             className="w-full"
                             size="small"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             inputRef={password}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={handleToggle} edge="end">
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                     </form>
 

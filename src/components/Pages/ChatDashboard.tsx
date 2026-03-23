@@ -1,4 +1,4 @@
-import React, { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Box,
     List,
@@ -14,10 +14,12 @@ import {
     Chip
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import axios from "axios";
 import type { ChatListItem } from "../Helper/TsInterfce";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import api from "../../config/api";
+import { socket } from "../Socket/socket";
+import { useSelector } from "react-redux";
 
 
 
@@ -47,24 +49,27 @@ export default function ChatDashboard() {
     const [input, setInput] = useState("");
     const [selectedChat, setSelectedChat] = useState<ChatListItem | null>(null);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
+    const [isActiveChat, setIsActiveChat] = useState(false);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
 
     useEffect(() => {
         const id = localStorage.getItem("_user_Identy_v3")
-        setUserId(id); // Simulate user ID
+        setUserId(id);
     }, []);
+
+    localStorage.setItem("selectedChat", "rohitdemo");
+
     const sendMessage = () => {
         if (!input) return;
-
         setMessages([...messages, { sender: "admin", text: input, time: "Now" }]);
         setInput("");
     };
 
     const getChatHistory = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:5000/api/patner/admin/chat/list/dashboard/${userId}`
+            const response = await api.get(
+                `/api/patner/admin/chat/list/dashboard/${userId}`
             );
             console.log("Full Response:", response);
             if (response.status === 200) {
@@ -86,8 +91,8 @@ export default function ChatDashboard() {
 
     const getMessagesForChat = async (partnerId: string) => {
         try {
-            const response = await axios.get(
-                `http://localhost:5000/api/patner/admin/chat/messages/dashboard/${partnerId}`
+            const response = await api.get(
+                `${import.meta.env.VITE_API_BASE_URL}/api/patner/admin/chat/messages/dashboard/${partnerId}`
             );
             if (response.status === 200) {
                 setChatHistory(response.data.data);
@@ -101,8 +106,9 @@ export default function ChatDashboard() {
 
 
     const handleChatItemClick = (chat: ChatListItem) => {
-        console.log("Chat item clicked:", chat);
         setSelectedChat(chat);
+        setIsActiveChat(chat.isActive || false);
+        console.log("Selected Chat:", chat);
     }
     useEffect(() => {
         if (selectedChat?._id) {
@@ -113,22 +119,37 @@ export default function ChatDashboard() {
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatHistory]);
-    console.log("Chat History:", chatHistory);
 
+
+    useEffect(() => {
+        const handler = (data: any) => {
+            console.log("New message:", data);
+
+            getChatHistory(); // no condition needed
+        };
+
+        socket.on("new_notification", handler);
+
+        return () => {
+            socket.off("new_notification", handler);
+        };
+    }, [userId]);
+
+    const notifications = useSelector((state: any) => state.socket);
+    console.log("Notifications from Redux:", notifications);
 
     return (
         <Box sx={{ height: "90vh", display: "flex", background: "#f2f3f6", gap: 2, p: 2 }}>
             <Paper sx={{ width: 290, bgcolor: "#1e293b", color: "#fff", p: 2 }}>
                 <Typography variant="h6" mb={2}>Conversations</Typography>
-                {conversations.length === 0 ? (
+                {conversations?.length === 0 ? (
                     <Typography variant="body2" color="gray">
                         No conversations available.
                     </Typography>
                 ) : null}
                 <List sx={{ maxHeight: "70vh", overflowY: "auto" }}>
-                    {conversations.map((chat) => {
+                    {conversations?.map((chat) => {
                         return (
-
                             <ListItem
                                 onClick={() => handleChatItemClick(chat)}
                                 key={chat._id}
@@ -204,7 +225,7 @@ export default function ChatDashboard() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <Typography sx={{ fontSize: "16px" }}>Chat Window</Typography>
-                        {selectedChat && <Chip label="Open" color="success" size="small" />}
+                        {selectedChat && <Chip label={isActiveChat ? "Active" : "Inactive"} color={isActiveChat ? "success" : "info"} size="small" />}
                     </div>
 
                     {/* <Chip label="Open" color="success" size="small" /> */}

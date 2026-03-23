@@ -1,17 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../config/api";
 
 export const fetchAdminData = createAsyncThunk(
     "admin/fetchAdminData",
     async (userId: string) => {
-        const response = await axios.get(`${"http://localhost:5000"}/api/patner/admin/partner/details/dashboard/${userId}`);
-        console.log(response.data, "admin data in fetchAdminData");
+        const response = await api.get(`/api/patner/admin/partner/details/dashboard/${userId}`);
+        console.log("Admin data fetched:", response.data);
+        return response.data;
+    }
+);
+
+export const fetchAdminUsers = createAsyncThunk(
+    "admin/fetchAdminUsers",
+    async (userId: string) => {
+        const response = await api.get(`/api/patner/admin/partner/all/users/dashboard/${userId}`);
+        return response.data;
+    }
+);
+
+export const fetchAllUserConversions = createAsyncThunk(
+    "admin/fetchAllUserConversions",
+    async (userId: string) => {
+        const response = await api.get(`/api/patner/admin/partner/all/conversations/dashboard/${userId}`);
         return response.data;
     }
 );
 
 const initialState = {
     admin: null,
+    user: [],
+    conversions: [],
     loading: false,
     error: null as string | null | undefined
 };
@@ -22,6 +40,7 @@ const adminSlice = createSlice({
     reducers: {
         setAdminData: (state, action) => {
             state.admin = action.payload;
+            state.loading = false;
         }
     },
     extraReducers: (builder) => {
@@ -36,7 +55,30 @@ const adminSlice = createSlice({
             .addCase(fetchAdminData.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
+            })
+            .addCase(fetchAdminUsers.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchAdminUsers.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+            })
+            .addCase(fetchAdminUsers.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            .addCase(fetchAllUserConversions.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchAllUserConversions.fulfilled, (state, action) => {
+                state.loading = false;
+                state.conversions = action.payload;
+            })
+            .addCase(fetchAllUserConversions.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
             });
+
     }
 });
 
