@@ -1,6 +1,41 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../config/api";
 
+interface User {
+    _id: string;
+    name: string;
+    email: string;
+}
+
+interface UsersResponse {
+    data: User[];
+}
+
+interface Conversion {
+    _id: string;
+    // add fields if needed
+}
+
+interface ConversionResponse {
+    totalChats: number;
+    data: Conversion[];
+}
+interface AdminState {
+    admin: any;
+    user: UsersResponse | null;
+    conversions: ConversionResponse | null;
+    loading: boolean;
+    error: string | null | undefined;
+}
+
+const initialState: AdminState = {
+    admin: null,
+    user: null,
+    conversions: null,
+    loading: false,
+    error: null
+};
+
 export const fetchAdminData = createAsyncThunk(
     "admin/fetchAdminData",
     async (userId: string) => {
@@ -26,13 +61,7 @@ export const fetchAllUserConversions = createAsyncThunk(
     }
 );
 
-const initialState = {
-    admin: null,
-    user: [],
-    conversions: [],
-    loading: false,
-    error: null as string | null | undefined
-};
+
 
 const adminSlice = createSlice({
     name: "admin",

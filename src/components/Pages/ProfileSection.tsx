@@ -12,12 +12,12 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminData } from "../../reduxToolKit/slice/adminSlice";
-import type { AppDispatch } from "../../reduxToolKit/store/Store";
+import type { AppDispatch, RootState } from "../../reduxToolKit/store/Store";
 ;
 
 export default function Profile() {
     const dispatch = useDispatch<AppDispatch>();
-    const adminData = useSelector((state) => state.admin.admin);
+    const adminData = useSelector((state: RootState) => state.admin.admin);
     const [form, setForm] = useState({
         username: "",
         email: "",
@@ -55,7 +55,7 @@ export default function Profile() {
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{
                         bgcolor: "#1f212578",
                         color: "#fff",
@@ -94,7 +94,7 @@ export default function Profile() {
                 </Grid>
 
                 {/* RIGHT FORM */}
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Card sx={{
                         bgcolor: "#1f212578",
                         color: "#fff",
@@ -109,7 +109,7 @@ export default function Profile() {
                             </Typography>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <TextField
                                         label="Username"
                                         name="username"
@@ -122,7 +122,7 @@ export default function Profile() {
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <TextField
                                         label="Email"
                                         name="email"
@@ -134,7 +134,7 @@ export default function Profile() {
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12 }}>
                                     <TextField
                                         label="Contact Number"
                                         name="contact"
@@ -155,7 +155,7 @@ export default function Profile() {
                             </Typography>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12 }}>
                                     <TextField
                                         label="Company Name"
                                         name="company"
@@ -176,7 +176,7 @@ export default function Profile() {
                             </Typography>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12 }}>
                                     <TextField
                                         label="Domain Name"
                                         name="domain"

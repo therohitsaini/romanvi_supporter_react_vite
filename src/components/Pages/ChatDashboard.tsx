@@ -49,10 +49,10 @@ export default function ChatDashboard() {
     const [input, setInput] = useState("");
     const [selectedChat, setSelectedChat] = useState<ChatListItem | null>(null);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
-    const [isActiveChat, setIsActiveChat] = useState(false);
+    const [isActiveChat, setIsActiveChat] = useState<boolean>(false);
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
-
+    console.log("isActiveChat", isActiveChat)
     useEffect(() => {
         const id = localStorage.getItem("_user_Identy_v3")
         setUserId(id);

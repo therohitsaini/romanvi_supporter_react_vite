@@ -15,8 +15,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useDispatch } from "react-redux";
-import { socket } from "../Socket/socket";
 import api from "../../config/api";
 
 const ChatWidget = () => {
@@ -26,7 +24,6 @@ const ChatWidget = () => {
     const userEmail = searchParams.get("user");
     const domain = searchParams.get("domain");
     const [loader, setLoader] = useState(false);
-    const dispatch = useDispatch();
     const [messages, setMessages] = useState([
         { sender: "bot", text: "Hi 👋 How can I help you today?" },
     ]);

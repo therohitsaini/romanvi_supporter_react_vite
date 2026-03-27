@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useState } from "react";
 import {
     AppBar,
-    Avatar,
     Badge,
     Box,
     CircularProgress,
@@ -14,8 +13,6 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Menu,
-    MenuItem,
     Toolbar,
     Tooltip,
     Typography,
@@ -32,22 +29,21 @@ import {
 } from "@mui/icons-material";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { Outlet, NavLink } from "react-router-dom";
-import { fetchAdminData, fetchAdminUsers } from "../../reduxToolKit/slice/adminSlice";
+import { fetchAdminData } from "../../reduxToolKit/slice/adminSlice";
 import { useSelector } from "react-redux";
-import Loader from "../Helper/Loader";
 import { useAppDispatch } from "../hook/hook";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ProfileMenu from "../Helper/Profile";
+import type { RootState } from "../../reduxToolKit/store/Store";
 const drawerWidth = 240;
 const collapsedWidth = 80;
 
 export default function Dashboard() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [userId, setUserId] = useState<(null) | string>(null);
     const dispatch = useAppDispatch();
-    const adminData = useSelector((state) => state.admin.admin);
+    const adminData = useSelector((state: RootState) => state.admin.admin);
     useEffect(() => {        // Close the mobile drawer when navigating to a new route
         const id = localStorage.getItem("_user_Identy_v3")
         setUserId(String(id));
@@ -78,17 +74,17 @@ export default function Dashboard() {
     ];
 
 
-
-
-
     return (
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", backgroundColor: "black" }}>
             <CssBaseline />
-
             <AppBar
                 position="fixed"
                 sx={{
-                    backgroundColor: "#0c0c0c",
+                    backgroundColor: "rgba(51, 50, 50, 0.7)",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(15px)",
+                    boxShadow: "none",
+                    borderBottom: "1px solid rgba(84, 81, 81, 0.259)",
                     width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
                     ml: { sm: `${currentDrawerWidth}px` },
                     transition: "all 0.3s ease",
@@ -96,7 +92,7 @@ export default function Dashboard() {
             >
                 <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
 
-                    {/* LEFT SIDE */}
+
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         <IconButton
                             color="inherit"
@@ -334,25 +330,24 @@ export default function Dashboard() {
                 </Drawer>
             </Box>
 
-            {/* Main Content */}
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     p: 3,
                     width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: "none",
                     minHeight: "100%",
                     transition: "all 0.3s ease",
                     padding: 0
+
                 }}
             >
                 <Toolbar />
-                
-                    <Suspense fallback={<CircularProgress enableTrackSlot size="3rem" />}>
-                        <Outlet />
-                    </Suspense>
-              
+                <Suspense fallback={<CircularProgress enableTrackSlot size="3rem" />}>
+                    <Outlet />
+                </Suspense>
+
             </Box>
         </Box>
     );

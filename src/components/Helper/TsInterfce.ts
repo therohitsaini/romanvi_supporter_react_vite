@@ -5,5 +5,6 @@ export interface ChatListItem {
     partnerId: string
     createdAt: string
     updatedAt: string
+    isActive: boolean
     __v: number
 }

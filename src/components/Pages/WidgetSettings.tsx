@@ -70,10 +70,8 @@ const WidgetCustomizer = () => {
     }
 
     return (
-        <Grid container sx={{ display: "flex", gap: 10, padding: 5 }} spacing={4}>
-
-            {/* LEFT SIDE SETTINGS */}
-            <Grid size={{ xs: 12, md: 6 }}>
+        <Grid container sx={{ display:"flex", gap: 2 , bgcolor:"white",padding:"20px"}} spacing={4}>
+            <Grid size={{ xs: 12, md: 6 }}sx={{width:"40px"}} >
                 <Typography variant="h5" gutterBottom >
                     Widget Settings
                 </Typography>
@@ -169,7 +167,7 @@ const WidgetCustomizer = () => {
                 </Button>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 6, }} >
                 <Typography variant="h5" gutterBottom>
                     Live Preview
                 </Typography>
@@ -185,7 +183,7 @@ const WidgetCustomizer = () => {
                         justifyContent: settings.position === "left" ? "flex-start" : "flex-end",
                         p: 3,
                         // boxShadow: "inset 0 0 20px rgba(0,0,0,0.05)",
-                        width: "700px",
+                        
 
                     }}
                 >

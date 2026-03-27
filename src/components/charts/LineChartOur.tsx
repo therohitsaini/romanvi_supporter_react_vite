@@ -10,31 +10,22 @@ import {
 } from "recharts";
 import { formatData } from "../Helper/FormateDate";
 
-// ✅ Chat widget SaaS data
-const data = [
-    { date: "Mon", chats: 120, users: 40 },
-    { date: "Tue", chats: 200, users: 60 },
-    { date: "Wed", chats: 150, users: 55 },
-    { date: "Thu", chats: 300, users: 80 },
-    { date: "Fri", chats: 250, users: 70 },
-    { date: "Sat", chats: 400, users: 100 },
-    { date: "Sun", chats: 350, users: 90 },
-];
+
 
 export default function LineChartOur(analytics: any) {
     const formattedData = formatData(analytics?.analytics?.data || []);
 
-    console.log("LineChartOur received analytics:", formattedData);
     return (
         <div
             style={{
                 width: "100%",
-                maxWidth: "700px",
-                height: "300px",
-                background: "#0c0c0c", // ✅ black bg
+                maxWidth: "100%",
+                height: "350px",
+                background: "linear-gradient(to bottom right, #0F172A, #111827, #020617)", // ✅ black bg
                 padding: "16px",
                 borderRadius: "6px",
-                border: "1px solid #374151", // ✅ dark border
+                border: "1px solid #374151", 
+                
             }}
         >
             <ResponsiveContainer width="100%" height="100%">
@@ -80,11 +71,11 @@ export default function LineChartOur(analytics: any) {
                         strokeWidth={3}
                         dot={{ r: 3 }}
                         activeDot={{ r: 6 }}
-                        name="Chats"
+                        name="Messages"
                     />
 
                     {/* ✅ Users Line */}
-                    <Line
+                    {/* <Line
                         type="monotone"
                         dataKey="users"
                         stroke="#3b82f6"
@@ -92,7 +83,7 @@ export default function LineChartOur(analytics: any) {
                         dot={{ r: 3 }}
                         activeDot={{ r: 6 }}
                         name="Users"
-                    />
+                    /> */}
                 </LineChart>
             </ResponsiveContainer>
         </div>
